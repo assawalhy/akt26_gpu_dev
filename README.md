@@ -131,22 +131,25 @@ both operands, `lda = ldb = ldc = n`, stride `n * n`, `alpha = 1`, `beta = 0`.
 Quadro T2000 with Max-Q Design, compute capability 7.5, driver 595.71.05, CUDA
 12.9, built with `make` (that is, `sm=75`).
 
+![ger and gemm runs, both TEST PASS](docs/benchmark.png)
+
 `3-ger`, 4000 x 2000, 100 repeats:
 
 | implementation | time (us) | GFLOP/s | error norm |
 |---|---|---|---|
-| custom kernel | 487.8 | 32.80 | 4.44e-08 |
-| cuBLAS `SGER` | 513.7 | 31.15 | 4.44e-08 |
+| custom kernel | 473.7 | 33.78 | 4.44e-08 |
+| cuBLAS `SGER` | 503.7 | 31.77 | 4.44e-08 |
 
 `4-gemm`, n = 16, batch 1000, 100 repeats:
 
 | implementation | time (us) | GFLOP/s | max batch fwd error |
 |---|---|---|---|
-| custom kernel | 39.1 | 209.75 | 2.44e-08 |
-| cuBLAS strided batched | 97.8 | 83.79 | 3.20e-08 |
+| custom kernel | 43.0 | 190.57 | 2.44e-08 |
+| cuBLAS strided batched | 108.1 | 75.77 | 3.20e-08 |
 
-Both kernels match the reference to within 4.5e-08 relative error, and both beat
-cuBLAS at these sizes.
+Timings move by a few percent between runs; the errors are stable. Both kernels
+match the reference to within 4.5e-08 relative error, and both beat cuBLAS at
+these sizes.
 
 ## Correctness beyond the defaults
 
