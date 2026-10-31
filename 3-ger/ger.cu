@@ -14,7 +14,12 @@
 // Column-major storage: A(i,j) = A[j*m + i]
 __global__ void ger_kernel(int m, int n, float alpha, const float* x, const float* y, float* A)
 {
-    // TODO: write your CUDA kernel here
+    const int i = blockIdx.x * blockDim.x + threadIdx.x;
+    const int j = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (i < m && j < n) {
+        A[(size_t)j * m + i] += alpha * x[i] * y[j];
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -105,11 +110,11 @@ int main(int argc, char** argv)
                 m, n, alpha, repeats);
     std::printf("Matrix storage: column-major\n\n");
 
-    // n1000: configure your kernel here
-    // TODO: the configuration below is a default that you must change
-    dim3 block(16, 16, 1);
-    dim3 grid( 1, 1, 1);
-    // end of TODO: kernel configuration
+    // One thread per element of A. threadIdx.x walks the column (row index i),
+    // so consecutive lanes read x and A with stride 1.
+    dim3 block(32, 8, 1);
+    dim3 grid((m + block.x - 1) / block.x,
+              (n + block.y - 1) / block.y, 1);
 
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
